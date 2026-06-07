@@ -27,8 +27,8 @@ def _get_client() -> OpenAI:
 
 class AgentAction(BaseModel):
     """Structured output from a specialist — describes what HTTP call to make."""
-    method:   str            # GET | POST | DELETE | PUT
-    path:     str            # e.g. /api/rag/query
+    method:   str | None     = None   # GET | POST | DELETE | PUT (null when direct_answer)
+    path:     str | None     = None   # e.g. /api/rag/query
     body:     dict | None    = None
     params:   dict | None    = None
     direct_answer: str | None = None  # if no API call needed, answer directly
@@ -45,12 +45,14 @@ class BaseAgent(ABC):
     """
     Abstract specialist agent.
     Subclasses declare their name, skill paths, and action schema.
+    Set inline_skill to embed the prompt directly instead of loading a file.
     """
 
     name: str
     description: str
-    skill_path: str
+    skill_path: str       = ""
     subskill_paths: list[str] = []
+    inline_skill: str | None  = None
 
     _SYSTEM_SUFFIX = """
 ## Output Format
@@ -71,6 +73,8 @@ Only output the JSON object — no markdown, no explanation.
 
     @property
     def system_prompt(self) -> str:
+        if self.inline_skill:
+            return f"{self.inline_skill}\n\n{self._SYSTEM_SUFFIX}"
         skill_text = load_skill_with_subskills(self.skill_path, *self.subskill_paths)
         return f"{skill_text}\n\n{self._SYSTEM_SUFFIX}"
 

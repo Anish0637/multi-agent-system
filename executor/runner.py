@@ -47,6 +47,14 @@ def execute(action: AgentAction, service_name: str) -> ExecutorResult:
             success=True,
         )
 
+    if not action.method or not action.path:
+        return ExecutorResult(
+            status_code=400,
+            body={},
+            success=False,
+            error="Agent returned no method/path and no direct_answer",
+        )
+
     base_url = _SERVICE_URLS.get(service_name)
     if not base_url:
         return ExecutorResult(

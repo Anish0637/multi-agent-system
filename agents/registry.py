@@ -6,11 +6,11 @@ from __future__ import annotations
 
 from agents.base import BaseAgent
 from agents.rag_agent import RagMemoryAgent
+from agents.billing_agent import BillingAgent
+from agents.hr_agent import HRAgent
+from agents.general_agent import GeneralAgent
 
 # ── Register specialists here ─────────────────────────────────
-# Future agents plug in exactly the same way:
-#   from agents.billing_agent import BillingAgent
-#   from agents.crm_agent     import CRMAgent
 
 _REGISTRY: dict[str, BaseAgent] = {}
 
@@ -20,8 +20,9 @@ def _register(agent: BaseAgent) -> None:
 
 
 _register(RagMemoryAgent())
-# _register(BillingAgent())   ← next agent plugs in here
-# _register(CRMAgent())
+_register(BillingAgent())
+_register(HRAgent())
+_register(GeneralAgent())
 
 
 def get_agent(name: str) -> BaseAgent:
